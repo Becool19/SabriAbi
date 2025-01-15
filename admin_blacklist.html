@@ -1,0 +1,441 @@
+{% extends "base.html" %}
+
+{% block title %}Kara Liste - Casino Bot{% endblock %}
+
+{% block content %}
+<div class="blacklist-container">
+    <!-- Casino Themed Background Elements -->
+    <div class="casino-elements">
+        <div class="floating-cards">
+            <div class="card-symbol spade"></div>
+            <div class="card-symbol heart"></div>
+            <div class="card-symbol diamond"></div>
+            <div class="card-symbol club"></div>
+        </div>
+        <div class="dice-container">
+            <div class="dice dice1"></div>
+            <div class="dice dice2"></div>
+        </div>
+        <div class="chips-container">
+            <div class="chip chip1"></div>
+            <div class="chip chip2"></div>
+            <div class="chip chip3"></div>
+        </div>
+        <!-- Yeni Animasyonlu Casino Elementleri -->
+        <div class="roulette-wheel"></div>
+        <div class="slot-machine">
+            <div class="slot-reel"></div>
+        </div>
+        <div class="jackpot-coins"></div>
+    </div>
+
+    <div class="content-wrapper">
+        <!-- Logo ve Başlık -->
+        <div class="page-header" data-aos="fade-down">
+            <img src="/static/images/logo.png" alt="Casino Logo" class="casino-logo">
+            <h1 class="page-title">Admin Kontrol Paneli</h1>
+        </div>
+
+        <!-- Kara Liste Kartı -->
+        <div class="blacklist-card glass-effect" data-aos="fade-up">
+            <div class="card-header">
+                <div class="header-content">
+                    <i class="fas fa-ban header-icon"></i>
+                    <h4 class="header-title">Kara Liste Yönetimi</h4>
+                </div>
+                <div class="header-glow"></div>
+            </div>
+
+            <div class="card-body">
+                <!-- Kara Liste Tablosu -->
+                <div class="table-wrapper">
+                    <div class="table-container">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-network-wired"></i> IP Adresi</th>
+                                    <th><i class="fas fa-comment-alt"></i> Sebep</th>
+                                    <th><i class="fas fa-calendar-alt"></i> Tarih</th>
+                                    <th><i class="fas fa-user-shield"></i> Ekleyen Admin</th>
+                                    <th><i class="fas fa-cogs"></i> İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in blacklist %}
+                                <tr class="table-row" data-aos="fade-left" data-aos-delay="{{ loop.index * 50 }}">
+                                    <td class="ip-cell">{{ item.ip_address }}</td>
+                                    <td class="reason-cell">{{ item.reason }}</td>
+                                    <td class="date-cell">{{ item.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                                    <td class="admin-cell">
+                                        {% if item.created_by_id %}
+                                            <span class="admin-name">{{ item.created_by.username }}</span>
+                                        {% else %}
+                                            <span class="system-tag">Sistem</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="action-cell">
+                                        <button class="action-btn remove-btn" onclick="removeFromBlacklist('{{ item.ip_address }}')">
+                                            <i class="fas fa-trash"></i>
+                                            <span class="btn-text">Kaldır</span>
+                                            <div class="btn-glow"></div>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- IP Adresi Ekleme Formu -->
+                <div class="add-ip-section" data-aos="fade-up">
+                    <div class="section-header">
+                        <i class="fas fa-plus-circle"></i>
+                        <h5>IP Adresi Ekle</h5>
+                    </div>
+                    <form id="addToBlacklistForm" class="add-ip-form">
+                        <div class="form-group">
+                            <label for="ipAddress" class="form-label">
+                                <i class="fas fa-network-wired"></i>
+                                IP Adresi
+                            </label>
+                            <input type="text" class="custom-input" id="ipAddress" name="ip_address" 
+                                   required pattern="^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+                                   placeholder="Örn: 192.168.1.1">
+                            <div class="input-glow"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="reason" class="form-label">
+                                <i class="fas fa-comment-alt"></i>
+                                Sebep
+                            </label>
+                            <input type="text" class="custom-input" id="reason" name="reason" 
+                                   required placeholder="Engelleme sebebi">
+                            <div class="input-glow"></div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="submit-btn">
+                                <i class="fas fa-plus"></i>
+                                <span>Ekle</span>
+                                <div class="btn-glow"></div>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- İlişkili Hesaplar Kartı -->
+        <div class="related-accounts-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="card-header warning">
+                <div class="header-content">
+                    <i class="fas fa-link header-icon"></i>
+                    <h4 class="header-title">İlişkili Hesaplar</h4>
+                </div>
+                <div class="header-glow"></div>
+            </div>
+
+            <div class="card-body">
+                <div class="table-wrapper">
+                    <div class="table-container">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-network-wired"></i> IP Adresi</th>
+                                    <th><i class="fas fa-users"></i> Kullanıcı Adları</th>
+                                    <th><i class="fab fa-telegram"></i> Telegram Hesapları</th>
+                                    <th><i class="fas fa-clock"></i> Son İşlem</th>
+                                    <th><i class="fas fa-cogs"></i> İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody id="relatedAccounts">
+                                <!-- JavaScript ile doldurulacak -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --primary-color: #1a1a1a;
+    --secondary-color: #2c2c2c;
+    --accent-color: #f1c40f;
+    --text-color: #ffffff;
+    --error-color: #dc3545;
+    --success-color: #28a745;
+    --gradient-gold: linear-gradient(45deg, #f1c40f, #f39c12);
+    --gradient-dark: linear-gradient(45deg, #1a1a1a, #2c2c2c);
+}
+
+.blacklist-container {
+    background: url('/static/images/casino-bg') center/cover no-repeat fixed;
+    min-height: 100vh;
+    padding: 2rem 0;
+    position: relative;
+}
+
+.glass-effect {
+    background: rgba(28, 28, 28, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(241, 196, 15, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Yeni Animasyonlar */
+@keyframes rouletteRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes slotSpin {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-100%); }
+}
+
+@keyframes coinRain {
+    0% { transform: translateY(-100%) rotate(0deg); }
+    100% { transform: translateY(100%) rotate(360deg); }
+}
+
+/* Responsive Tasarım Güncellemeleri */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .casino-logo {
+        max-width: 150px;
+        margin-bottom: 1rem;
+    }
+
+    .blacklist-card,
+    .related-accounts-card {
+        margin: 1rem;
+    }
+}
+
+/* Yeni Element Stilleri */
+.roulette-wheel {
+    position: fixed;
+    top: 5%;
+    right: 5%;
+    width: 100px;
+    height: 100px;
+    background: url('/static/images/roulette.png') center/cover;
+    animation: rouletteRotate 10s linear infinite;
+    opacity: 0.2;
+}
+
+.slot-machine {
+    position: fixed;
+    bottom: 5%;
+    left: 5%;
+    width: 80px;
+    height: 120px;
+    background: var(--gradient-gold);
+    border-radius: 10px;
+    overflow: hidden;
+    opacity: 0.2;
+}
+
+.jackpot-coins {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.1;
+}
+
+/* Form ve Buton İyileştirmeleri */
+.custom-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(241, 196, 15, 0.2);
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.custom-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
+}
+
+.action-btn,
+.submit-btn {
+    background: var(--gradient-gold);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 24px;
+    color: var(--primary-color);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.action-btn:hover,
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(241, 196, 15, 0.3);
+}
+</style>
+
+<script>
+// Kara listeden kaldırma
+function removeFromBlacklist(ipAddress) {
+    if (!confirm(`${ipAddress} adresini kara listeden kaldırmak istediğinizden emin misiniz?`)) return;
+
+    fetch('/admin/remove_from_blacklist', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ip_address: ipAddress })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            showNotification('error', 'Hata: ' + data.error);
+        }
+    });
+}
+
+// Kara listeye ekleme
+document.getElementById('addToBlacklistForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    fetch('/admin/add_to_blacklist', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            showNotification('error', 'Hata: ' + data.error);
+        }
+    });
+});
+
+// İlişkili hesapları yükle
+function loadRelatedAccounts() {
+    fetch('/admin/get_related_accounts')
+    .then(response => response.json())
+    .then(data => {
+        const tbody = document.getElementById('relatedAccounts');
+        tbody.innerHTML = '';
+        data.accounts.forEach((group, index) => {
+            const row = document.createElement('tr');
+            row.className = 'table-row';
+            row.setAttribute('data-aos', 'fade-left');
+            row.setAttribute('data-aos-delay', index * 50);
+            
+            row.innerHTML = `
+                <td class="ip-cell">${group.ip_address}</td>
+                <td class="usernames-cell">${group.usernames.join('<br>')}</td>
+                <td class="telegram-cell">${group.telegram_accounts.join('<br>')}</td>
+                <td class="date-cell">${new Date(group.last_activity).toLocaleString()}</td>
+                <td class="action-cell">
+                    <button class="action-btn" onclick="blacklistRelated('${group.ip_address}')">
+                        <i class="fas fa-ban"></i>
+                        <span class="btn-text">Tümünü Engelle</span>
+                        <div class="btn-glow"></div>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    });
+}
+
+// İlişkili hesapları engelle
+function blacklistRelated(ipAddress) {
+    if (!confirm(`${ipAddress} ile ilişkili tüm hesapları engellemek istediğinizden emin misiniz?`)) return;
+
+    fetch('/admin/blacklist_related', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ip_address: ipAddress })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            showNotification('error', 'Hata: ' + data.error);
+        }
+    });
+}
+
+// Bildirim gösterme
+function showNotification(type, message) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        <span>${message}</span>
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Yeni JavaScript Fonksiyonları
+function createJackpotCoins() {
+    const coinsContainer = document.querySelector('.jackpot-coins');
+    for (let i = 0; i < 20; i++) {
+        const coin = document.createElement('div');
+        coin.className = 'coin';
+        coin.style.left = `${Math.random() * 100}%`;
+        coin.style.animationDelay = `${Math.random() * 5}s`;
+        coinsContainer.appendChild(coin);
+    }
+}
+
+function initializeAnimations() {
+    createJackpotCoins();
+    AOS.init({
+        duration: 800,
+        once: true,
+        offset: 50
+    });
+}
+
+// Form Validasyonları
+function validateIPAddress(ip) {
+    const ipRegex = /^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/;
+    return ipRegex.test(ip);
+}
+
+// WebSocket Bağlantısı
+const socket = new WebSocket('ws://' + window.location.host + '/ws/blacklist/');
+socket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    if (data.type === 'blacklist_update') {
+        loadRelatedAccounts();
+    }
+};
+
+// Sayfa Yüklendiğinde
+document.addEventListener('DOMContentLoaded', function() {
+    initializeAnimations();
+    loadRelatedAccounts();
+});
+</script>
+{% endblock %} 
